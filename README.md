@@ -40,3 +40,22 @@ Even though I used the same hardware, my process was different from Ben Eater's.
 
 I spent a lot of time with the datasheet for the 6502. My first goal was to get it to predictably execute NOP instructions. In other words, my first goal was to sucessfully make it to do nothing. 
 
+In order to read the values on the data and address bus of the 6502, I would need a logic analyzer. I didn't have the means to obtain such a tool, so I decided to follow Ben Eater's approach here and use an Arduino MEGA to read the values of the address and data bus. This board had the number of digital inputs required to capture the value of all 8 data lines and all 16 addresses. The exact setup and code can be found on Ben Eater's website. I don't intend to reinvent the wheel here, so I won't be going over that.
+
+![alt text](https://github.com/mxazfar/6502-Computer/blob/main/W65C02S%20Pinout.png?raw=true)
+
+The first thing I did after setting up my makeshift logic analyzer was connect power and ground to the IC on pins 8 and 21 respectively on the pinout diagram above. Connecting up my logic analyzer, I saw nothing, as expected. There were many pins on the IC that needed to be set for normal operation.
+
+First off, I needed to give the MPU a clock signal. I planned on using a one megahertz crystal oscillator for the clock; this would prove to be way too fast to be picked up by my logic analyzer, so I decided to cheaply hook up a button to the clock input to step through the program. The PHI2 pin on the MPU is the input for the clock cycle. The datasheet gives us the following information regarding the pin.
+
+>Phase 2 In (PHI2) is the system clock input to the microprocessor internal clock. During the low power Standby Mode, PHI2 can be held in either high or low >state to preserve the contents of internal registers since the microprocessor is a fully static design.
+
+This means that I could step through the MPU's program execution and observe the results slowly. After this, I took a look at the interrupt pins on the chip. The interrupt request line (IRQB) and the nonmaskable interrupt (NMIB) are both used to trigger interrupt events. These are active low signals; leaving the values floating could result in the processor continuously calling interrupts, so I decided to tie these pins high. 
+
+Lastly, I tied the RDY and BE pins high as well. RDY allows the processor to run, and BE allows the data and address busses to output their values. 
+
+After this, I powered the MPU back up and read the values off of the busses. Stepping through the clock, I saw what I expected. The microprocessor was hopping around and accessing various different addresses and reading and writing various different data. This is likely because there was no program; the MPU turned on, and executed the first instruction it read on the data lines. 
+
+Looking through the datasheet, I found the machine code for the NOP instruction to be 0xEA. In binary, this translates to 0b11101010. I tied the data lines from D7 down to D0 through resistors to these values. After powering the MPU back on, I had accomplished my first goal. The processor was just walking through the address space of the computer. This is because the NOP instruction on the 6502 just tells it to check the next instruction. Tieing the data bus to 0xEA made the entire computer do nothing. The instruction took two clock cycles. This makes sense according to the datasheet. 
+
+The NOP instruction only has one addressing method. The implied addressing method is used. 
