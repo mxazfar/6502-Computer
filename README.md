@@ -1,6 +1,8 @@
 # 6502-Computer
 Documentation of the design and development of a 6502 MPU-based computer. 
 
+Please find the documentation for this project on the Wiki tab.
+
 This computer is very heavily inspired by Ben Eater's series of videos on the [6502 microprocessor](https://www.youtube.com/user/eaterbc).
 
 # Inspiration
